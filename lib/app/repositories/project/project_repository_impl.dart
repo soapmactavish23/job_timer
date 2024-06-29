@@ -1,17 +1,16 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:developer';
 
 import 'package:isar/isar.dart';
-import 'package:job_timer/app/core/database/database.dart';
+import 'package:job_timer/app/core/database/database_impl.dart';
 import 'package:job_timer/app/core/exceptions/failure.dart';
 import 'package:job_timer/app/entities/project.dart';
 import 'package:job_timer/app/repositories/project/project_repository.dart';
 
 class ProjectRepositoryImpl implements ProjectRepository {
-  final Database _database;
+  final DatabaseImpl _database;
 
   ProjectRepositoryImpl({
-    required Database database,
+    required DatabaseImpl database,
   }) : _database = database;
 
   @override
@@ -25,7 +24,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
     } on IsarError catch (e, s) {
       String msg = 'Erro ao cadastrar projeto';
       log(msg, error: e, stackTrace: s);
-      Failure(message: msg);
+      throw Failure(message: msg);
     }
   }
 }
