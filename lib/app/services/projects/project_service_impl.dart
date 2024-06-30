@@ -1,13 +1,14 @@
 import 'package:job_timer/app/entities/project.dart';
-import 'package:job_timer/app/repositories/project/project_repository.dart';
+import 'package:job_timer/app/entities/project_status.dart';
+import 'package:job_timer/app/repositories/project/project_repository_impl.dart';
 import 'package:job_timer/app/services/projects/project_service.dart';
 import 'package:job_timer/app/view_models/project_model.dart';
 
 class ProjectServiceImpl implements ProjectService {
-  final ProjectRepository _projectRepository;
+  final ProjectRepositoryImpl _projectRepository;
 
   ProjectServiceImpl({
-    required ProjectRepository projectRepository,
+    required ProjectRepositoryImpl projectRepository,
   }) : _projectRepository = projectRepository;
 
   @override
@@ -19,5 +20,11 @@ class ProjectServiceImpl implements ProjectService {
       ..estimate = projectModel.estimate;
 
     await _projectRepository.register(project);
+  }
+
+  @override
+  Future<List<ProjectModel>> findByStatus(ProjectStatus status) async {
+    final projects = await _projectRepository.findByStatus(status);
+    return projects.map((p) => ProjectModel.fromEntity(p)).toList();
   }
 }

@@ -19,8 +19,8 @@ class ProjectRegisterController extends Cubit<ProjectRegisterStatus> {
       emit(ProjectRegisterStatus.loading);
 
       final ProjectModel projectModel = ProjectModel(
-        name: 'teste',
-        estimate: 1,
+        name: name,
+        estimate: estimate,
         status: ProjectStatus.em_andamento,
         tasks: [],
       );
