@@ -8,7 +8,7 @@ class ProjectDetailModule extends Module {
   @override
   List<Bind<Object>> get binds => [
         BlocBind.lazySingleton(
-          (i) => ProjectDetailController(),
+          (i) => ProjectDetailController(projectService: i()),
         ),
       ];
 

@@ -45,7 +45,18 @@ class ProjectRepositoryImpl implements ProjectRepository {
 
     project.tasks.add(task);
 
-    connection.writeTxn(() async => await project.tasks.save());
+    await connection.writeTxn(() async {
+      final taskId = await connection.projectTasks.put(task);
+
+      final savedTask = await connection.projectTasks.get(taskId);
+
+      if (savedTask != null) {
+        project.tasks.add(savedTask);
+        await project.tasks.save();
+      } else {
+        throw Failure(message: 'Não foi possível Salvar a task');
+      }
+    });
 
     return project;
   }
@@ -56,9 +67,22 @@ class ProjectRepositoryImpl implements ProjectRepository {
     final project = await connection.projects.get(projectId);
 
     if (project == null) {
-      throw Failure(message: 'Projecto não encontrado');
+      throw Failure(message: 'Projeto não encontrado');
     }
 
     return project;
+  }
+
+  @override
+  Future<void> finish(int projectId) async {
+    try {
+      final connection = await _database.openConnection();
+      final project = await findById(projectId);
+      project.status = ProjectStatus.finalizado;
+      await connection.writeTxn(() => connection.projects.put(project));
+    } on IsarError catch (e, s) {
+      log(e.message, error: e, stackTrace: s);
+      throw Failure(message: 'Erro ao finalizar projeto');
+    }
   }
 }

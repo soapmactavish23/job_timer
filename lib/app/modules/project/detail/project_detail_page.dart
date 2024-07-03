@@ -2,6 +2,7 @@
 import 'package:asuka/asuka.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:job_timer/app/entities/project_status.dart';
 
 import 'package:job_timer/app/modules/project/detail/controller/project_detail_controller.dart';
 import 'package:job_timer/app/modules/project/detail/widgets/project_detail_appbar.dart';
@@ -56,40 +57,27 @@ class ProjectDetailPage extends StatelessWidget {
   }
 
   Widget _buildProjectDetail(BuildContext context, ProjectModel projectModel) {
+    final totalTask = projectModel.tasks.fold<int>(0, (totalValue, task) {
+      return totalValue += task.duration;
+    });
+
     return CustomScrollView(
       slivers: [
         ProjectDetailAppbar(projectModel: projectModel),
         SliverList(
           delegate: SliverChildListDelegate([
-            const Padding(
-              padding: EdgeInsets.only(top: 50, bottom: 50),
-              child: ProjectPieChart(),
+            Padding(
+              padding: const EdgeInsets.only(top: 50, bottom: 50),
+              child: ProjectPieChart(
+                projectEstimate: projectModel.estimate,
+                totalTask: totalTask,
+              ),
             ),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
-            const ProjectTaskTile(),
+            ...projectModel.tasks
+                .map((task) => ProjectTaskTile(
+                      task: task,
+                    ))
+                .toList(),
           ]),
         ),
         SliverFillRemaining(
@@ -98,10 +86,15 @@ class ProjectDetailPage extends StatelessWidget {
             alignment: Alignment.bottomRight,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.check_circle),
-                label: const Text('Finalizar Projeto'),
+              child: Visibility(
+                visible: projectModel.status != ProjectStatus.finalizado,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    controller.finishProject();
+                  },
+                  icon: const Icon(Icons.check_circle),
+                  label: const Text('Finalizar Projeto'),
+                ),
               ),
             ),
           ),
